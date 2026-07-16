@@ -1,0 +1,10 @@
+# WebLogic & Oracle
+
+domain_data/
+instaladores/
+
+# OS and IDE files
+.DS_Store
+.vscode/
+*.log
+.env
