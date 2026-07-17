@@ -8,3 +8,9 @@ instaladores/
 .vscode/
 *.log
 .env
+
+# Ignorar contenido de la carpeta
+domain_data/nuevo_dominio/*
+
+# Asegurar que Git no ignore la estructura base
+!domain_data/nuevo_dominio/
