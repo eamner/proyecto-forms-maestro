@@ -11,6 +11,14 @@ This repository contains the configuration and workflow for deploying a WebLogic
   - `fmw_12.2.1.4.0_forms.jar`
   - Oracle JDK 8uXXX
 
+## Database Connectivity
+The application relies on a connection to an Oracle Database instance. 
+- **Data Source Configuration:** Configured via the WebLogic Administration Console or WLST.
+- **Connection Parameters:** 
+  - JDBC Driver: `oracle.jdbc.OracleDriver`
+  - Connection Pool: Managed by the WebLogic server, ensuring optimal connection reuse.
+  - Integration: Credentials and TNS entries must be mapped via the container's environment variables or a secure properties file (not committed to version control).
+
 ## Deployment Workflow
 
 ### 1. Environment Initialization
