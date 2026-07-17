@@ -1,7 +1,10 @@
 # WebLogic & Oracle
+domain_data/*
+instaladores/*
 
-domain_data/
-instaladores/
+#Keep control files
+!domain_data/.keep
+!domain_data/nuevo_dominio/.keep
 
 # OS and IDE files
 .DS_Store
@@ -9,8 +12,3 @@ instaladores/
 *.log
 .env
 
-# Ignorar contenido de la carpeta
-domain_data/nuevo_dominio/*
-
-# Asegurar que Git no ignore la estructura base
-!domain_data/nuevo_dominio/
