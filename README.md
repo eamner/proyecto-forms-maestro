@@ -1,65 +1,46 @@
-# Sistema Maestro-Detalle con Control de Reglas de Negocio en BD
+# WebLogic and Oracle Forms Deployment Roadmap
 
-Este proyecto implementa una arquitectura desacoplada utilizando una interfaz visual para la gestión de flujos de trabajo enlazada a un motor de base de datos relacional. Toda la lógica transaccional y las restricciones críticas de negocio se encuentran delegadas y blindadas mediante **Stored Procedures**, garantizando la integridad de los datos independientemente del cliente que consuma los servicios.
+## Overview
+This repository contains the configuration and workflow for deploying a WebLogic Server instance and an Oracle Forms application within a containerized Docker environment. This setup allows for the migration and testing of legacy Oracle applications in isolated, reproducible environments.
 
-## 🏗️ Arquitectura del Entorno
+## Prerequisites
+- Docker Engine
+- Docker Compose
+- Oracle Installation Media (Required binaries):
+  - `fmw_12.2.1.4.0_infrastructure.jar`
+  - `fmw_12.2.1.4.0_forms.jar`
+  - Oracle JDK 8uXXX
 
-La solución se encuentra empaquetada y automatizada utilizando contenedores, aislando el motor de persistencia y facilitando su despliegue inmediato.
+## Deployment Workflow
 
-```text
-nombre-de-tu-proyecto/
-├── database/
-│   └── init_db.sql          # Scripts de inicialización y procedimientos
-├── forms-app/               # Binarios y archivos fuentes de la interfaz
-└── docker-compose.yml       # Orquestación de los contenedores
+### 1. Environment Initialization
+The environment relies on persistent volumes to store WebLogic domain data outside of the container lifecycle.
+- Ensure the `domain_data/` directory exists in the host machine.
+- Define the necessary environment variables for the Oracle Installer in the `.env` file.
 
+### 2. Base Configuration
+The deployment utilizes a custom Docker image built from Oracle Fusion Middleware (FMW) base images. 
+- The `Dockerfile` must include the FMW Infrastructure and Forms components.
+- The `docker-compose.yml` orchestrates the service, mapping local source directories to the container’s deployment paths.
 
-Despliegue del Entorno (Contenedores)
+### 3. Middleware Configuration (setDomainEnv.sh)
+To resolve `ClassNotFoundException` errors regarding FMW notification listeners, the `PRE_CLASSPATH` must be manually updated in the domain configuration:
+- Locate `setDomainEnv.sh` within the domain home.
+- Append the path to the required FMW module JARs:
+  `export PRE_CLASSPATH=$PRE_CLASSPATH:/u01/oracle/oracle_common/modules/...`
 
-Para levantar el entorno de desarrollo de manera local y automatizada, ejecute los siguientes comandos en su terminal:
-1. Construir y levantar los servicios
+### 4. Deployment Steps
+1. Build the container image:
+   `docker-compose build`
+2. Start the services:
+   `docker-compose up -d`
+3. Access the WebLogic Administration Console via the configured port (default: 7001).
+4. Deploy the EAR/WAR application files using the WLST (WebLogic Scripting Tool) or the Web Console.
 
-Para iniciar el proceso de descarga y configuración de los contenedores en segundo plano:
-Bash
-
-docker compose up -d
-
-2. Verificar el estado de los contenedores
-
-Para asegurarse de que los servicios asignados a  e infraestructura estén operando correctamente:
-Bash
-
-docker ps
-
-3. Monitorear los logs de inicialización
-
-Si desea auditar la correcta ejecución de los scripts de inicialización automatizados (init_db.sql):
-Bash
-
-docker logs <nombre-de-contenedor> -f
-
-4. Detener el entorno de desarrollo
-
-Para pausar los servicios sin destruir los volúmenes de datos persistentes:
-Bash
-
-docker compose down
-
-Diseño del Modelo y Reglas de Negocio Blindadas
-
-El diccionario de datos se autoconfigura al iniciar el contenedor. La lógica implementada en  restringe las siguientes acciones operativas:
-
-    Inserción Segura: No se permite añadir registros dependientes (detalles) a un nodo maestro cuyo estado operativo figure como 'COMPLETED'. El intento gatilla una excepción RAISE_APPLICATION_ERROR.
-
-    Eliminación Restringida: Queda prohibido alterar o remover el historial de elementos dependientes si el elemento maestro se encuentra cerrado.
-
-    Flujo Inverso Automatizado: Al completarse de forma legítima el último elemento del detalle, un desencadenador o procedimiento evalúa el lote y promueve automáticamente el estado del elemento maestro a 'COMPLETED'.
-
-💻 Integración con el Cliente Visual
-
-La interfaz de usuario interactúa directamente a través de disparadores nativos (Triggers) interceptando el ciclo de vida del guardado:
-
-    PRE-INSERT / PRE-DELETE: Invoca los procedimientos alojados en <nombre-de-contenedor>, capturando excepciones globales mediante RAISE FORM_TRIGGER_FAILURE para evitar el tráfico innecesario hacia la red si la regla de negocio es violada.
+## Troubleshooting
+- **Dependency Issues:** If the application fails to initialize, verify the existence of `oracle.as.config` modules in the classpath.
+- **Log Inspection:** Logs are persisted in `domain_data/nuevo_dominio/logs/`.
+- **Persistence:** All domain changes are stored in the volume mapped to `/u01/oracle/user_projects/domains/`.
 
 
 ---
