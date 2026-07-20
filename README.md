@@ -50,7 +50,7 @@ To resolve `ClassNotFoundException` errors regarding FMW notification listeners,
 - **Log Inspection:** Logs are persisted in `domain_data/nuevo_dominio/logs/`.
 - **Persistence:** All domain changes are stored in the volume mapped to `/u01/oracle/user_projects/domains/`.
 
-
----
-
-### 🏁 ¡Proyecto Culminado!
+## Future Improvements (pending)
+- **CI/CD Pipeline:** Automate application deployment using GitHub Actions.
+- **Log Aggregation:** Integrate ELK Stack for centralized diagnostics.
+- **High Availability:** Scale WebLogic clusters for improved fault tolerance.
